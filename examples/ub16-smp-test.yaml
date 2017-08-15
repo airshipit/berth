@@ -1,0 +1,36 @@
+vmlist:
+  ub16-smp-test:
+    enabled: true
+    vmconfig:
+      cpu:
+        vcpu: 2
+        ram_mb: 2048
+      rootfs:
+        sourceurl: http://stupidest.org/vm/cw-ub16-test-3a.qcow2
+        localtarget: cw-ub16-test.qcow2
+        pvc_size: 7Gi
+    netconfig:
+      ports:
+        ssh: 22
+        vnc: 5900
+    cloudconfig:
+      metadata: |
+        {
+            "uuid": "093772fe-d6a3-4eea-84bc-5966661a0c3e",
+            "name": "my-name",
+            "instance-id": "my-instance-id",
+            "availability-zone": "my-az",
+            "hostname": "my-hostname",
+            "local-hostname": "my-local-hostname",
+            "launch-index": "123"
+        }
+      userdata: |
+        #cloud-config
+        fqdn: ub16-smp-test.example.com
+        users:
+          - name: root
+            ssh-authorized-keys:
+              - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII+k1AYpUX7Y6+pVzkw3JPbRPNpoh7m1rZBP4Qa37Wz2 user@host"
+              - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPE/zGmNx3W52ztb/2vvTcgUN7RGbq172QXGcXKAagU1 user@host"
+              - "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKVeMUpC6Ba0UwyLeCCWexr/sc4kYwKW6mTSTpcQHDm+F5UqoW3pnbGPn3WSJB2AbCMP9oG0qQrLP2zHmE7fyog= otheruser@otherhost"
+        ssh_pwauth: True

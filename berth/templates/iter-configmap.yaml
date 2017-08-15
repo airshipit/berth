@@ -1,0 +1,33 @@
+
+{{- define "template" -}}
+{{- $name := index . 0 -}}
+{{- $context := index . 1 -}}
+{{- $last := base $context.Template.Name }}
+{{- $wtf := $context.Template.Name | replace $last $name -}}
+{{ include $wtf $context }}
+{{- end -}}
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-generic-startvm
+data:
+  startvm: |
+{{ tuple "bin/_startvm.txt" . | include "template" | indent 4 }}
+
+---
+
+{{- range $name, $vm := .Values.vmlist }}
+{{- if $vm.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-cloudconfig-{{ $name }}
+data:
+  metadata: {{ toYaml $vm.cloudconfig.metadata | indent 4 }}
+  userdata: {{ toYaml $vm.cloudconfig.userdata | indent 4 }}
+---
+{{- end }}
+{{- end }}

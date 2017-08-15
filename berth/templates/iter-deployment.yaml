@@ -1,0 +1,98 @@
+
+{{- $envAll := . }}
+
+{{ range $name, $vm := .Values.vmlist }}
+
+# id: {{- $name }}
+{{- if $vm.enabled }}
+# vm enabled
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: berth-{{ $name }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: berth
+      annotations:
+        pod.beta.kubernetes.io/hostname: {{ $name }}
+    spec:
+      nodeSelector:
+        {{ $envAll.Values.labels.node_selector_key }}: {{ $envAll.Values.labels.node_selector_value }}
+      hostNetwork: false
+      hostPID: false
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: {{ $name }}
+          imagePullPolicy: IfNotPresent
+          image: {{ $envAll.Values.images.vmrunner }}
+          env:
+            - name: IMG_SOURCE
+              value: {{ $vm.vmconfig.rootfs.sourceurl }}
+            - name: IMG_TARGET
+              value: {{ $vm.vmconfig.rootfs.localtarget }}
+            - name: IMG_VCPU
+              value: "{{ $vm.vmconfig.cpu.vcpu }}"
+            - name: IMG_RAM_MB
+              value: "{{ $vm.vmconfig.cpu.ram_mb }}"
+          securityContext:
+            privileged: true
+          command:
+            - /usr/local/bin/startvm
+{{- if $vm.netconfig.ports }}
+          ports:
+{{- range $for, $port := $vm.netconfig.ports }}
+            - containerPort: {{ $port }}
+{{- end }}
+{{- end }}
+{{- if $vm.netconfig.readinessTcpProbe }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ $vm.netconfig.readinessTcpProbe }}
+{{- end }}
+          volumeMounts:
+            - name: volume-startvm
+              mountPath: /usr/local/bin/startvm
+              subPath: startvm
+            - name: image
+              mountPath: /image
+            - name: dev
+              mountPath: /dev
+            - name: sys
+              mountPath: /sys
+            - name: volume-cloudinit
+              mountPath: /userdata
+              subPath: userdata
+            - name: volume-cloudinit
+              mountPath: /metadata
+              subPath: metadata
+      volumes:
+        - name: volume-startvm
+          configMap:
+            name: configmap-generic-startvm
+            defaultMode: 0755
+        - name: image
+          persistentVolumeClaim:
+            claimName: {{ $name }}
+        - name: dev
+          hostPath:
+              path: /dev
+        - name: sys
+          hostPath:
+              path: /sys
+        - name: volume-cloudinit
+          configMap:
+            name: configmap-cloudconfig-{{ $name }}
+            items:
+            - key: userdata
+              path: userdata
+            - key: metadata
+              path: metadata
+{{- else }}
+# {{ $name }} not enabled!
+{{- end }}
+---
+{{- end }}

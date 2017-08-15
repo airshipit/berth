@@ -1,0 +1,22 @@
+vmlist:
+  cirros-test:
+    enabled: true
+    vmconfig:
+      cpu:
+        vcpu: 1
+        ram_mb: 256
+      rootfs:
+        sourceurl: http://stupidest.org/vm/cirros-0.3.5-x86_64-disk.img
+        localtarget: cirros-vm.qcow2
+        pvc_size: 128Mi
+    netconfig:
+      ports:
+        ssh: 22
+        vnc: 5900
+    cloudconfig:
+      metadata: |
+        { "uuid": "093772fe-d6a3-4eea-84bc-5966661a0c3e" }
+      userdata: |
+        #cloud-config
+        fqdn: cirros.example.com
+      bogus_not_used: "this won't hurt anthing but shouldn't be here"

@@ -1,0 +1,10 @@
+# this vm isn't fully defined, not enabling it is enough to have the
+# templates skip over the details and not barf
+vmlist:
+  - bogus-vm:
+    enabled: false
+    extra: "thang"
+    vmconfig: "this is wrong"
+    cloudconfig:
+      metadata: "{ "
+      userdata: false

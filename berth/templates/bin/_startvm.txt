@@ -1,16 +1,17 @@
 #!/bin/bash
 
-set -x
+set -ex
 
-echo "VER-0.1.0-1.2"
+# FIXME; right now this doens't work, need to work out why
+#set -o pipefail
 
 # Returns the integer representation of an IP arg, passed in ascii
 # dotted-decimal notation (x.x.x.x)
 atoi() {
     IP=$1; IPNUM=0
     for (( i=0 ; i<4 ; ++i )); do
-	((IPNUM+=${IP%%.*}*$((256**$((3-${i}))))))
-	IP=${IP#*.}
+        ((IPNUM+=${IP%%.*}*$((256**$((3-${i}))))))
+        IP=${IP#*.}
     done
     echo $IPNUM
 }
@@ -27,23 +28,23 @@ itoa() {
 generate_cloud_drive() {
     metadata=/metadata
     if [ ! -f $metadata ]; then
-	metadata=""
+        metadata=""
     fi
 
     userdata=/userdata
     if [ ! -f $userdata ]; then
-	userdata=""
+        userdata=""
     fi
 
     if [ "$metadata" == "" -a "$userdata" == "" ]; then
-	return
+        return
     fi
 
     TMPDIR=`mktemp -d -t aicvm.XXXXXX`
 
     if [ $? -ne 0 ]; then
-	echo "Fail to create temporaily directory"
-	exit 1
+        echo "Fail to create temporaily directory"
+        exit 1
     fi
 
     # create form of config drive
@@ -54,17 +55,17 @@ generate_cloud_drive() {
     cd $OLD_PWD
 
     if [ -f $metadata ]; then
-	cp $metadata ${TMPDIR}/openstack/2012-08-10/meta_data.json
+        cp $metadata ${TMPDIR}/openstack/2012-08-10/meta_data.json
     fi
     if [ -f $userdata ]; then
-	cp $userdata ${TMPDIR}/openstack/2012-08-10/user_data
+        cp $userdata ${TMPDIR}/openstack/2012-08-10/user_data
     fi
 
     iso="cloud-drive.iso"
     mkisofs -R -V config-2 -o $iso ${TMPDIR}
     if [ $? -ne 0 ]; then
-	echo Fail to create cloud-drive ISO image for cloud-init
-	exit 1
+        echo Fail to create cloud-drive ISO image for cloud-init
+        exit 1
     fi
     echo $iso
 }
@@ -110,38 +111,38 @@ if [ -e /dev/vm/root ]; then
 else
 
     if [ -e "${IMG_TARGET}" ]; then
-	BASE=${IMG_TARGET}
+        BASE=${IMG_TARGET}
     else
 
-	if [ ! -d "/image" ]; then
-	    echo "/image directory does not exist, failed to mount volume?"
-	    exit 2
-	fi
+        if [ ! -d "/image" ]; then
+            echo "/image directory does not exist, failed to mount volume?"
+            exit 2
+        fi
 
-	if [ ! -e "/image/${IMG_TARGET}" ]; then
-	    echo "Fetching missing image target"
-	    curl ${IMG_SOURCE} > /image/${IMG_TARGET}
-	fi
+        if [ ! -e "/image/${IMG_TARGET}" ]; then
+            echo "Fetching missing image target"
+            curl ${IMG_SOURCE} > /image/${IMG_TARGET}
+        fi
 
-	BASE=/image/${IMG_TARGET}
+        BASE=/image/${IMG_TARGET}
     fi
 
     if [ ! -d "/image" ]; then
-	echo "/image directory does not exist, failed to mount volume /image?"
-	exit 2
+        echo "/image directory does not exist, failed to mount volume /image?"
+        exit 2
     fi
 
     if [ -z "${HOSTNAME}" ]; then
-    	echo "Could not find HOSTNAME var.  Did you specify a HOSTNAME environment variable?"
+        echo "Could not find HOSTNAME var.  Did you specify a HOSTNAME environment variable?"
     fi
 
     KVM_IMAGE=/image/${HOSTNAME}.qcow2
 
     if [ -e "${KVM_IMAGE}" ]; then
-    	echo "Image ${KVM_IMAGE} already exists.  Not recreating"
+        echo "Image ${KVM_IMAGE} already exists.  Not recreating"
     else
         qemu-img create -f qcow2 -b ${BASE} \
-		 $KVM_IMAGE > /dev/null
+                 $KVM_IMAGE > /dev/null
         if [[ $? -ne 0 ]]; then
             echo "Failed to create qcow2 image"
             exit 3
@@ -173,14 +174,14 @@ cidr2mask() {
     local partial_octet=$(($1%8))
 
     for ((i=0;i<4;i+=1)); do
-	if [ $i -lt $full_octets ]; then
-	    mask+=255
-	elif [ $i -eq $full_octets ]; then
-	    mask+=$((256 - 2**(8-$partial_octet)))
-	else
-	    mask+=0
-	fi
-	test $i -lt 3 && mask+=.
+        if [ $i -lt $full_octets ]; then
+            mask+=255
+        elif [ $i -eq $full_octets ]; then
+            mask+=$((256 - 2**(8-$partial_octet)))
+        else
+            mask+=0
+        fi
+        test $i -lt 3 && mask+=.
     done
 
     echo $mask
@@ -196,6 +197,24 @@ setup_bridge_networking() {
     NAMESERVER=( `grep nameserver /etc/resolv.conf | grep -v "#" | cut -f2 -d ' '` )
     NAMESERVERS=`echo ${NAMESERVER[*]} | sed "s/ /,/"`
     SEARCH=( `grep -E ^search /etc/resolv.conf | grep -v "#" | cut -f2- -d ' ' | tr ' ' ','` )
+    # MAC=$(ip addr show $IFACE | grep ether | sed -e 's/^[[:space:]]*//g' -e 's/[[:space:]]*\$//g' | cut -f2 -d ' ')
+    # HOST_IP=$(ip addr show dev $IFACE | grep "inet $IP" | awk '{print $2}' | cut -f1 -d/)
+    # HOST_CIDR=$(ip addr show dev $IFACE | grep "inet $IP" | awk '{print $2}' | cut -f2 -d/)
+    # HOST_NETMASK=$(cidr2mask $HOST_CIDR)
+    # HOST_GATEWAY=$(ip route get 8.8.8.8 | grep via | cut -f3 -d ' ')
+    # NAMESERVER=$(grep nameserver /etc/resolv.conf | grep -v "#" | cut -f2 -d ' ') )
+    # NAMESERVERS=$(echo ${NAMESERVER[*]} | sed "s/ /,/")
+    # SEARCH=$(grep -E ^search /etc/resolv.conf | grep -v "#" | cut -f2- -d ' ' | tr ' ' ',')
+
+    # fail if any of the above aren't suitable    # here
+    [ -n "$MAC" ]
+    [ -n "$HOST_IP" ]
+    [ -n "$HOST_CIDR" ]
+    [ -n "$HOST_NETMASK" ]
+    [ -n "$HOST_GATEWAY" ]
+    [ -n "$NAMESERVER" ]
+    [ -n "$NAMESERVERS" ]
+    [ -n "$SEARCH" ]
 
     # we must enable forwarding inside the container
     echo 1 > /proc/sys/net/ipv4/ip_forward
@@ -205,11 +224,11 @@ setup_bridge_networking() {
     # specify NO_VNC as an environment variable to disable this
     # functionality
     if [ -z $NO_VNC ]; then
-   	iptables -t nat -A PREROUTING -p tcp \! --dport 5900 -d $HOST_IP -j DNAT --to-destination $VM_IP
-   	iptables -t nat -A POSTROUTING -s $VM_IP -j SNAT --to-source $HOST_IP
+        iptables -t nat -A PREROUTING -p tcp \! --dport 5900 -d $HOST_IP -j DNAT --to-destination $VM_IP
+        iptables -t nat -A POSTROUTING -s $VM_IP -j SNAT --to-source $HOST_IP
     else
-	iptables -t nat -A PREROUTING -d $HOST_IP -j DNAT --to-destination $VM_IP
-	iptables -t nat -A POSTROUTING -s $VM_IP -j SNAT --to-source $HOST_IP
+        iptables -t nat -A PREROUTING -d $HOST_IP -j DNAT --to-destination $VM_IP
+        iptables -t nat -A POSTROUTING -s $VM_IP -j SNAT --to-source $HOST_IP
     fi
 
     # generate VM specifics
@@ -258,4 +277,14 @@ setup_bridge_networking
 HOST_IP=`ip addr show dev $IFACE | grep "inet $IP" | awk '{print $2}' | cut -f1 -d/`
 VNC="-vnc $HOST_IP:0"
 
-exec $LAUNCHER qemu-system-x86_64 -enable-kvm  $VNC `eval echo $KVM_BLK_OPTS` `eval echo $KVM_NET_OPTS` -usbdevice tablet -nographic $KVM_ARGS
+exec $LAUNCHER qemu-system-x86_64 \
+     -smp "$IMG_VCPU" \
+     -m "$IMG_RAM_MB" \
+     -machine q35 \
+     -cpu host,+x2apic \
+     -vga vmware \
+     -enable-kvm \
+     $VNC \
+     `eval echo $KVM_BLK_OPTS` \
+     `eval echo $KVM_NET_OPTS` \
+     -usbdevice tablet -nographic $KVM_ARGS

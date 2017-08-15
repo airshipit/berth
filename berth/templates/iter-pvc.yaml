@@ -1,0 +1,23 @@
+
+{{- range $name, $vm := .Values.vmlist }}
+# id: {{- $name }}
+{{- if $vm.enabled }}
+# vm enabled
+# {{ $vm.vmconfig.rootfs.pvc_size }} {{ $vm.vmconfig.rootfs.pvc_class }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ $name }}
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: {{ $vm.vmconfig.rootfs.pvc_size }}
+{{- if $vm.vmconfig.rootfs.pvc_class }}
+  storageClassName: {{ $vm.vmconfig.rootfs.pvc_class}}
+{{- end }}
+{{- else }}
+# vm disabled - skipping
+{{- end }}
+---
+{{- end }}

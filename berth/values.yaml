@@ -1,18 +1,12 @@
 
-auth:
-  ssh_key:
-
 images:
-  entrypoint: quay.io/attcomdev/kvm-manager:latest
+  vmrunner: quay.io/attcomdev/kvm-manager:latest
 
 labels:
   node_selector_key: openstack-control-plane
   node_selector_value: enabled
 
-volume:
-  class_name:
-  size: 25Gi
+# by default in the chart's values.yaml this is empty; use and
+# override file and helm --values=... for your specific values
+vmlist: { }
 
-network:
-  port: 22
-  vnc: 5900

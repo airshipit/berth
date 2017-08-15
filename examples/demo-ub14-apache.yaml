@@ -1,0 +1,33 @@
+vmlist:
+  demo-ub14-apache:
+    enabled: true
+    vmconfig:
+      cpu:
+        vcpu: 1
+        ram_mb: 1024
+      rootfs:
+        sourceurl: http://stupidest.org/vm/ubuntu-14.04-amd64.img
+        localtarget: ubuntu-14.04-amd64.qcow2
+        pvc_size: 5Gi
+        pvc_class: nfs
+    netconfig:
+      ports:
+        ssh: 22
+        vnc: 5900
+      readinessTcpProbe: 22
+    cloudconfig:
+      metadata: |
+        { "uuid": "apache-demo.example.com" }
+      userdata: |
+        #cloud-config
+        fqdn: apache-demo.example.com
+        users:
+          - name: root
+            ssh-authorized-keys:
+              - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII+k1AYpUX7Y6+pVzkw3JPbRPNpoh7m1rZBP4Qa37Wz2 user@host"
+              - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPE/zGmNx3W52ztb/2vvTcgUN7RGbq172QXGcXKAagU1 user@host"
+              - "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKVeMUpC6Ba0UwyLeCCWexr/sc4kYwKW6mTSTpcQHDm+F5UqoW3pnbGPn3WSJB2AbCMP9oG0qQrLP2zHmE7fyog= otheruser@otherhost"
+        ssh_pwauth: True
+        runcmd:
+          - [ apt-get, update ]
+          - [ apt-get, install, -y, --force-yes, apache2 ]
