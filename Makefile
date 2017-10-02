@@ -3,9 +3,7 @@
 
 validation:
 	@echo ===========================================================================
-	python validate.py example-vmlist-1.yaml
-	@echo ===========================================================================
-	python validate.py example-vmlist-bad.yaml
+	python validate.py examples/*
 	@echo ===========================================================================
 
 all: test

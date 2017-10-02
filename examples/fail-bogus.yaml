@@ -9,6 +9,6 @@ vmlist:
       metadata: "{ "
       userdata: false
 # bogus mess
-  - noname: "idonthaveaname"
+  somevm:
     enabled: "can't be bothered"
     extra: "peanuts"
