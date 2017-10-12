@@ -9,7 +9,7 @@ vmlist:
         sourceurl: http://stupidest.org/vm/ubuntu-14.04-amd64.img
         localtarget: ubuntu-14.04-amd64.qcow2
         pvc_size: 5Gi
-        pvc_class: nfs
+        pvc_class: managed
     netconfig:
       ports:
         ssh: 22
