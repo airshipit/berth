@@ -1,18 +1,18 @@
 # This Makefile is used during development and can usually be ignored
 # by most people.
 
-validation:
+default:
+	@echo Useful valid targets are test-validate, test-install, test-uninstall
+
+all: test-validate test-install test-uninstall
+
+test-validate:
 	@echo ===========================================================================
 	python validate.py examples/*
 	@echo ===========================================================================
 
-all: test
 
-default: test
-
-test: install
-
-install: build
+test-install: build
 	@echo
 	-helm delete --purge berth
 	@echo
@@ -25,6 +25,9 @@ install: build
 	@echo
 	kubectl get pods -o wide
 
+test-uninstall:
+	helm delete --purge berth
+
 build:
 	@echo
 	helm lint berth
@@ -33,4 +36,4 @@ clean:
 	rm -f *~ */*~ */*/*~ berth-0.1.0.tgz
 
 .PHONY:
-	all default build clean
+	all default build clean test-validate test-install test-uninstall
