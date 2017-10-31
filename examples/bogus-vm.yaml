@@ -8,3 +8,7 @@ vmlist:
     cloudconfig:
       metadata: "{ "
       userdata: false
+# bogus mess
+  - noname: "idonthaveaname"
+    enabled: "can't be bothered"
+    extra: "peanuts"

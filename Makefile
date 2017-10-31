@@ -1,6 +1,13 @@
 # This Makefile is used during development and can usually be ignored
 # by most people.
 
+validation:
+	@echo ===========================================================================
+	python validate.py example-vmlist-1.yaml
+	@echo ===========================================================================
+	python validate.py example-vmlist-bad.yaml
+	@echo ===========================================================================
+
 all: test
 
 default: test
