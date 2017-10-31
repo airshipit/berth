@@ -14,8 +14,8 @@ kind: ConfigMap
 metadata:
   name: configmap-generic-startvm
 data:
-  startvm: |
-{{ tuple "bin/_startvm.txt" . | include "template" | indent 4 }}
+  startvm.sh: |
+{{ tuple "bin/_startvm.sh.tpl" . | include "template" | indent 4 }}
 
 ---
 
