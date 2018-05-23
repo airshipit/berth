@@ -84,7 +84,7 @@ NEWMAC=`echo 06:FE$end`
 -device virtio-net-pci,netdev=net0,mac=\$NEWMAC"}
 
 # define some valeus for the VM side of the networking but
-# allow them to be overriden by the operator
+# allow them to be overridden by the operator
 : ${VM_IP:="192.168.254.2"}
 : ${VM_GW:="192.168.254.1"}
 
