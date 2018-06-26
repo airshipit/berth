@@ -1,4 +1,5 @@
-FROM ubuntu:16.04
+ARG FROM=ubuntu:16.04
+FROM ${FROM}
 
 RUN apt-get update && apt-get install -y qemu-kvm dnsmasq bridge-utils mkisofs curl jq wget iptables
 RUN apt-get clean
