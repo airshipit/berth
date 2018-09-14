@@ -34,6 +34,14 @@ build:
 
 clean:
 	rm -f *~ */*~ */*/*~ berth-0.1.0.tgz
+	rm -rf doc/build
+
+.PHONY: docs
+docs: clean build_docs
+
+.PHONY: build_docs
+build_docs:
+	tox -e docs
 
 .PHONY:
 	all default build clean test-validate test-install test-uninstall
