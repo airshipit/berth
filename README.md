@@ -1,5 +1,8 @@
 Berth is a deliberately minimalist VM runner for Kubernetes.
 
+Find more documentation for Berth on
+`Read the Docs <https://airship-berth.readthedocs.io/>`_.
+
 ## TL;DR Installation Guide
 
 Install the bare Berth chart:
