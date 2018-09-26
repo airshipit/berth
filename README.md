@@ -1,4 +1,4 @@
-Berth is a deliberately minimalist VM runner for Kubernetes.
+Berth is a deliberately an minimalist VM runner for Kubernetes.
 
 ## TL;DR Installation Guide
 
