@@ -15,3 +15,47 @@
       - docs-on-readthedocs
     vars:
       rtd_webhook_id: '47941'
+    check:
+      jobs:
+        - airship-berth-docker-build-gate
+    gate:
+      jobs:
+        - airship-berth-docker-build-gate
+    post:
+      jobs:
+        - airship-berth-docker-publish
+
+- job:
+    name: airship-berth-docker-build-gate
+    timeout: 1800
+    run: tools/gate/playbooks/docker-image-build.yaml
+    nodeset: airship-armada-single-node
+    vars:
+      publish: false
+      tags:
+        dynamic:
+          patch_set: true
+
+- job:
+    name: airship-berth-docker-publish
+    timeout: 1800
+    run: tools/gate/playbooks/docker-image-build.yaml
+    nodeset: airship-armada-single-node
+    secrets:
+      - airship_berth_quay_creds
+    vars:
+      publish: true
+      tags:
+        dynamic:
+          branch: true
+          commit: true
+        static:
+          - latest
+
+- secret:
+    name: airship_berth_quay_creds
+    data:
+      username: !encrypted/pkcs1-oaep
+        - CHANGEME=
+      password: !encrypted/pkcs1-oaep
+        - CHANGEME=
